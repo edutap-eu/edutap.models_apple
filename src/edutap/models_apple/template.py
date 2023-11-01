@@ -1,8 +1,12 @@
 from datetime import datetime
+import io
 from typing import Any
 import uuid
+import zipfile
 from pydantic import BaseModel, Field
 import pydantic
+
+from edutap.models_apple.models import Pass
 
 
 class PassTemplateBase(BaseModel):
@@ -22,20 +26,53 @@ class PassTemplateBase(BaseModel):
     id: pydantic.types.UUID4 = Field(default_factory=uuid.uuid4) # unique over whole table
     template_id: str  # uniqe name for lookup
     backoffice_id: str  # unique id for backoffice
-    title: str
-    description: str
-    creator: str  
-    email: str
+    title: str = ""
+    description: str = ""
+    creator: str = ""
+    email: str = ""
     timestamp: datetime = Field(default_factory=datetime.now)
-    pass_type: str    # references Apple Pass Type Identifier as defined in models.@passmodel registry
+    pass_type: str = ""    # references Apple Pass Type Identifier as defined in models.@passmodel registry
     
     def create_pass(self, **kwargs):
         """create a pass from this template"""
-        pass_ = PassTemplate(**self.dict())
-        pass_.pass_json.update(kwargs)
-        return pass_
+        ...
     
+    def import_passfile(self, passfile: bytes | io.IOBase):
+        """
+        import a passfile into the template
+        fetches pass.json and validates/parses it,
+        gets all attachments and stores them in the template
+        ignores all other files(manifest, signature, etc.)
+        """
+        ignorefiles = ["manifest.json", "signature", "manifest", "pass.json"]
+        if isinstance(passfile, bytes):
+            passfile = io.BytesIO(passfile)
+            
+        zf = zipfile.ZipFile(passfile)
+        
+        for filename in zf.namelist():
+            if filename in ignorefiles:
+                continue
+            with zf.open(filename) as f:
+                self.attachments[filename] = f.read()
+        
+        passjson = zf.read("pass.json")
+
+        passobject = Pass.model_validate_json(passjson)
+        self.pass_type = passobject.passType
+        self.pass_json = passobject.model_dump(exclude_none=True)
+    
+    @classmethod
+    def from_passfile(cls, passfile: bytes | io.IOBase, template_id: str, backoffice_id: str):
+        template = cls(template_id=template_id, backoffice_id=backoffice_id, pass_type="generic")
+        template.import_passfile(passfile)
+        
+        return template
+        
+        
+        
+        
 class PassTemplate(PassTemplateBase):
     """bare pydantic class for validation and serialization"""
-    pass_json: dict[str, Any] # TODO: define pass_json structure model for sqlalchemy
-    attachments: dict[str, bytes] # TODO: define attachment structure model for sqlalchemy
+    pass_json: dict[str, Any] = Field(default_factory=dict)# TODO: define pass_json structure model for sqlalchemy
+    attachments: dict[str, bytes] = Field(default_factory=dict)# TODO: define attachment structure model for sqlalchemy

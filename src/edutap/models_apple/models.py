@@ -296,6 +296,10 @@ class Pass(BaseModel):
                 (map(lambda x: getattr(self, x), pass_model_registry)),
             )
         )
+        
+    @property
+    def passType(self):
+        return self.passInformation._jsonname
 
     def addFile(self, name: str, fd: typing.BinaryIO):
         """Adds a file to the pass. The file is stored in the files dict and the hash is stored in the hashes dict"""
