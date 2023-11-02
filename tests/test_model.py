@@ -182,7 +182,7 @@ def test_pdf_417_pass():
 
 def test_files():
     passfile = create_shell_pass()
-    passfile.addFile("icon.png", open(resources / "white_square.png", "rb"))
+    passfile.addFile("icon.png", open(resources / "white_square.png", "rb"))  # test with file handle
     assert len(passfile.files) == 1
     assert "icon.png" in passfile.files
 
@@ -190,7 +190,7 @@ def test_files():
     manifest = json.loads(manifest_json)
     assert "170eed23019542b0a2890a0bf753effea0db181a" == manifest["icon.png"]
 
-    passfile.addFile("logo.png", open(resources / "white_square.png", "rb"))
+    passfile.addFile("logo.png", open(resources / "white_square.png", "rb").read())  # test with bytes
     assert len(passfile.files) == 2
     assert "logo.png" in passfile.files
 

@@ -13,6 +13,7 @@ password_file = certs / "password.txt"
 cert_file = certs / "certificate.pem"
 key_file = certs / "private.key"
 wwdr_file = certs / "wwdr_certificate.pem"
+passes = data / "passes"
 
 
 def create_shell_pass(barcodeFormat=BarcodeFormat.CODE128, passTypeIdentifier="Pass Type ID", teamIdentifier="Team Identifier"):

@@ -301,9 +301,12 @@ class Pass(BaseModel):
     def passType(self):
         return self.passInformation._jsonname
 
-    def addFile(self, name: str, fd: typing.BinaryIO):
+    def addFile(self, name: str, fd: typing.BinaryIO | bytes):
         """Adds a file to the pass. The file is stored in the files dict and the hash is stored in the hashes dict"""
-        self.files[name] = fd.read()
+        if isinstance(fd, bytes):
+            self.files[name] = fd
+        else:
+            self.files[name] = fd.read()
 
     def _createManifest(self):
         """
