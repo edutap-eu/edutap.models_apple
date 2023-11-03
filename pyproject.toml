@@ -6,5 +6,6 @@ dependencies = [
     'M2Crypto >= 0.28.2',
     "pydantic != 2.4.0,>=2.0.0",
     "pytest",
-    "jsonpatch"
+    "jsonpatch",
+    "python-dotenv"
 ]

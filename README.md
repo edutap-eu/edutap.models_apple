@@ -13,9 +13,9 @@ this is the overall process to get the necessary certificates for issuing passes
 ```mermaid
 flowchart TD
     B[create private key.pem]
-    D[get/create Pass ID - apple.com]
+    D[get/create Passtype ID - apple.com]
     WWDR[download AppleWWDRCA.cer] -->WWDRPEM[convert to wwdr_certificate.pem]
-    D --> E[request Certificate.cer based on Pass Id - apple.com]
+    D --> E[request Certificate.cer based on Passtype Id - apple.com]
     B[create key.pem] --> CSR[create CSR]
     CSR -->|upload CSR in form| F[create+download Certificate.cer - apple.com]
     E --> F
@@ -75,7 +75,7 @@ then copy it into the 'certs' folder of the passbook server
 
 see [documentation @ apple](https://developer.apple.com/documentation/walletpasses/building_a_pass)
 
-check expiration date of certificate
+check expiration date of a certificate
 
 ```shell
 openssl x509 -enddate -noout -in file.pem
@@ -86,6 +86,18 @@ openssl x509 -enddate -noout -in file.pem
 copy the `certificate.pem`, `private.key` and `wwdr_certificate.pem` to the 'certs' directory your server.
 
 ## run the integration tests
+
+We need to provide a passtype identifier and a team identifier depending on your apple developer account.
+
+for running the integration tests you need to provide the following environment variables to be set in the file `.env` in the root directory of the project (not part of the git repo).
+
+
+```shell
+APPLE_TEAM_IDENTIFIER=XXXXXXXX
+APPLE_PASSTYPE_IDENTIFIER=xxxx.xxx.xxx.xx
+```
+
+then you can run the integration tests with on an apple machine with
 
 ```shell
 pytest -m integration

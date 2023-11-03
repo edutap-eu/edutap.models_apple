@@ -3,7 +3,7 @@ import resource
 import uuid
 import pytest
 
-from common import create_shell_pass, certs, create_shell_pass_loyalty, resources
+from common import create_shell_pass, certs, create_shell_pass_loyalty, resources, team_identifier, passtype_identifier
 from edutap.models_apple.models import NFC, Barcode, BarcodeFormat, Coupon, EventTicket, Pass, StoreCard
 
 
@@ -23,7 +23,7 @@ def test_passbook_creation_integration(tmp_path):
 
     pass_file_name = tmp_path / "pass1.pkpass" 
     passfile = create_shell_pass(
-        passTypeIdentifier="pass.demo.lmu.de", teamIdentifier="JG943677ZY"
+        passTypeIdentifier=passtype_identifier, teamIdentifier=team_identifier
     )
     passfile.addFile("icon.png", open(resources / "white_square.png", "rb"))
 
@@ -65,9 +65,9 @@ def test_passbook_creation_integration_loyalty_with_nfc(tmp_path):
     passfile = Pass(
         storeCard=cardInfo,
         organizationName="eduTAP",
-        # passTypeIdentifier="pass.demo.lmu.de",
-        passTypeIdentifier="pass.com.elatec.mobilebadge.20",
-        teamIdentifier="JG943677ZY",
+        passTypeIdentifier=passtype_identifier,
+        # passTypeIdentifier="pass.com.elatec.mobilebadge.20",
+        teamIdentifier=team_identifier,
         serialNumber=sn,
         description="edutap Sample Pass"
     )
@@ -127,8 +127,8 @@ def test_passbook_creation_integration_eventticket(tmp_path):
     passfile = Pass(
         eventTicket=cardInfo,
         organizationName="eduTAP",
-        passTypeIdentifier="pass.demo.lmu.de",
-        teamIdentifier="JG943677ZY",
+        passTypeIdentifier=passtype_identifier,
+        teamIdentifier=team_identifier,
         serialNumber=sn,
         description="edutap Sample Pass"
     )

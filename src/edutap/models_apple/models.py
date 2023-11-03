@@ -2,6 +2,7 @@ from enum import Enum
 import functools
 import hashlib
 from io import BytesIO
+import io
 import json
 from numbers import Number
 import typing
@@ -295,6 +296,13 @@ class Pass(BaseModel):
     nfc: NFC | None = None
     """Optional. Information used for Value Added Service Protocol transactions."""
 
+    def all_attachments(self) -> tuple[str, bytes]:
+        """
+        generator functino to iterate over all attachments, returning name and data
+        """
+        for filename, data in self.files.items():
+            yield filename, data
+            
     @property
     def pass_dict(self):
         return self.model_dump(exclude_none=True)
@@ -341,7 +349,7 @@ class Pass(BaseModel):
         wwdr_certificate: str,
         password: str,
         zip_file: typing.BinaryIO | None = None,
-    ):
+    ) -> io.BytesIO:
         manifest = self._createManifest()
         signature = self._createSignature(
             manifest, certificate, key, wwdr_certificate, password

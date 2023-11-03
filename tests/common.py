@@ -1,8 +1,12 @@
+import os
 from pathlib import Path
 import uuid
 
 from edutap.models_apple.models import Barcode, BarcodeFormat, Coupon, Field, Pass, StoreCard
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 cwd = Path(__file__).parent
 data = cwd / "data"
@@ -15,6 +19,8 @@ key_file = certs / "private.key"
 wwdr_file = certs / "wwdr_certificate.pem"
 passes = data / "passes"
 
+passtype_identifier = os.environ.get("APPLE_PASSTYPE_IDENTIFIER")
+team_identifier = os.environ.get("APPLE_TEAM_IDENTIFIER")
 
 def create_shell_pass(barcodeFormat=BarcodeFormat.CODE128, passTypeIdentifier="Pass Type ID", teamIdentifier="Team Identifier"):
     cardInfo = StoreCard()

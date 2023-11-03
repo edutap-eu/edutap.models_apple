@@ -62,6 +62,8 @@ class PassTemplateBase(BaseModel):
 
         pass_json[self.pass_type] = passinfo_json
         pass_object = Pass.model_validate(pass_json)
+        for name, data in self.all_attachments():
+            pass_object.addFile(name, data)
 
         return pass_object
 
@@ -72,7 +74,7 @@ class PassTemplateBase(BaseModel):
         certificate: str,
         key: str,
         wwdr_certificate: str,
-    ) -> bytes:
+    ) -> io.BytesIO:
         """
         create a pkpass from this template
         :param pass_patches: list of dicts containing patches for the pass object
@@ -84,6 +86,10 @@ class PassTemplateBase(BaseModel):
         uses create_pass_object to create a pass object and then creates a pkpass from it
         using the certificates and keys defined in the edutap.passdata_apple service for signing the pass
         """
+        
+        pass_object = self.create_pass_object(pass_patches, passinfo_patches)
+        pkpass = pass_object.create(certificate, key, wwdr_certificate)
+        return pkpass
 
     def import_passfile(self, passfile: bytes | io.IOBase):
         """
@@ -127,6 +133,7 @@ class PassTemplateBase(BaseModel):
 
         return template
 
+    @property
     def attachment_filenames(self):
         """return a list of all attachment filenames"""
         return self.attachments.keys()
@@ -137,6 +144,15 @@ class PassTemplateBase(BaseModel):
         data = base64.b64decode(b64str)
         return data
 
+    def all_attachments(self) -> tuple[str, bytes]:
+        """
+        generator functino to iterate over all attachments, returning name and data
+        """
+
+        for filename, b64str in self.attachments.items():
+            data = base64.b64decode(b64str)
+            yield filename, data
+            
 
 class PassTemplate(PassTemplateBase):
     """bare pydantic class for validation and serialization"""
