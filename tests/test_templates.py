@@ -91,11 +91,6 @@ def test_create_pkpass_from_template(created_pass_object: Pass, tmp_path):
     """
  
     pkpass = created_pass_object.create(
-        # common.certs /  "certificate.pem",
-        # common.certs /  "private.key",
-        # common.certs / "wwdr_certificate.pem",
-        
-
         common.certs / "private" / "certificate.pem",
         common.certs / "private" / "private.key",
         common.certs / "private" / "wwdr_certificate.pem",

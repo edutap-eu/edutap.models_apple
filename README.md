@@ -85,11 +85,21 @@ openssl x509 -enddate -noout -in file.pem
 
 copy the `certificate.pem`, `private.key` and `wwdr_certificate.pem` to the 'certs' directory your server.
 
+## run the unit tests
+
+without having installed the extra certificates you can run the unittests without having installed
+the certificates. 
+```shell
+pytest -m "not integration"
+```
+
 ## run the integration tests
 
 We need to provide a passtype identifier and a team identifier depending on your apple developer account.
 
 for running the integration tests you need to provide the following environment variables to be set in the file `.env` in the root directory of the project (not part of the git repo).
+
+Note: the certificate and the private key have to match the passtype identifier and the team identifier!
 
 
 ```shell
