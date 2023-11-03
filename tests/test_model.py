@@ -269,3 +269,17 @@ def test_passbook_creation():
     passfile.addFile("icon.png", open(resources / "white_square.png", "rb"))
     zip = passfile.create(cert_file, key_file, wwdr_file, password)
     
+
+def test_passbook_creation_from_json():
+    """
+    This test can only run locally if you provide your personal Apple Wallet
+    certificates, private key and password. It would not be wise to add
+    them to git. Store them in the files indicated below, they are ignored
+    by git.
+    """
+
+    with open(jsons / "storecard-old.json", "r") as file_:
+        json_ = file_.read()
+    passfile = models.Pass.model_validate_json(json_)
+    assert passfile.barcodes[0].format == BarcodeFormat.PDF417
+    print(passfile)

@@ -7,7 +7,7 @@ from numbers import Number
 import typing
 import zipfile
 
-from pydantic import BaseModel, Field as PydanticField, computed_field
+from pydantic import BaseModel, Field as PydanticField, computed_field, model_validator
 from pydantic.fields import FieldInfo
 
 from M2Crypto import SMIME, X509
@@ -241,6 +241,22 @@ class Pass(BaseModel):
             
         return legacyBarcode
 
+    @model_validator(mode='before')
+    @classmethod
+    def prepare_barcode(cls, data: dict[str, typing.Any]) -> dict[str, typing.Any]:
+        """
+        for backward compatibility reasons we check for barcode in singular
+        and convert it to barcodes in plural
+        """
+        res = data.copy()
+        
+        if "barcode" in res:
+            barcode = res.pop("barcode")
+            if "barcodes" not in res:
+                # since 'barcode' is deprecated, only overwrite if 'barcodes' is not set
+                res["barcodes"] = [barcode]
+
+        return res
     
     
     @barcode.setter

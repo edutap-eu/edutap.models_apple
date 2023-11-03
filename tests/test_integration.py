@@ -152,7 +152,8 @@ def test_passbook_creation_integration_eventticket():
 
     open(pass_file_name, "wb").write(zip.getvalue())
     os.system("open " + pass_file_name)
-
+    
+    
 @pytest.mark.integration
 def test_connect_apple_apn_sandbox_server():
     """
