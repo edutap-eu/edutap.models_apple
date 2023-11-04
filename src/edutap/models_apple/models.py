@@ -8,12 +8,15 @@ from numbers import Number
 import typing
 import zipfile
 
-from pydantic import BaseModel, Field as PydanticField, computed_field, model_validator
+from pydantic import BaseModel, ConfigDict, Field as PydanticField, computed_field, field_serializer, model_serializer, model_validator
 from pydantic.fields import FieldInfo
 
 from M2Crypto import SMIME, X509
 from M2Crypto.X509 import X509_Stack
-                          
+
+class StrEnum(str, Enum):
+    def __repr__(self) -> str:
+        return str.__repr__(self.value)                  
 
 class Alignment(Enum):
     LEFT = "PKTextAlignmentLeft"
@@ -23,7 +26,7 @@ class Alignment(Enum):
     NATURAL = "PKTextAlignmentNatural"
 
 
-class BarcodeFormat(Enum):
+class BarcodeFormat(StrEnum):
     PDF417 = "PKBarcodeFormatPDF417"
     QR = "PKBarcodeFormatQR"
     AZTEC = "PKBarcodeFormatAztec"
@@ -58,6 +61,8 @@ class NumberStyle(Enum):
 
 
 class Field(BaseModel):
+
+
     key: str  # Required. The key must be unique within the scope
     value: str | int | float  # Required. Value of the field. For example, 42
     label: str = ""  # Optional. Label text for the field.
@@ -65,17 +70,27 @@ class Field(BaseModel):
     # textAlignment: Alignment = Alignment.LEFT
     textAlignment: Alignment|None = None # Optional. Alignment for the field’s contents
     # textAlignment: MyEnum | None = None  # Optional. Alignment for the field’s contents
-
+    @field_serializer("textAlignment")
+    def convert_enum(self, v):
+        return v.value if v is not None else None
+    
 
 class DateField(Field):
+
     dateStyle: DateStyle = DateStyle.SHORT
     timeStyle: DateStyle = DateStyle.SHORT
     isRelative: bool = False
     ignoresTimeZone: bool = False
 
+    @field_serializer("dateStyle", "timeStyle")
+    def convert_enum(self, v):
+        return v.value if v is not None else None
 
 class NumberField(Field):
     numberStyle: NumberStyle = NumberStyle.DECIMAL
+    @field_serializer("numberStyle")
+    def convert_enum(self, v):
+        return v.value if v is not None else None
 
 
 class CurrencyField(Field):
@@ -83,6 +98,11 @@ class CurrencyField(Field):
 
 
 class Barcode(BaseModel):
+    
+    @field_serializer("format")
+    def convert_enum(self, v):
+        return v.value
+    
     format: BarcodeFormat = BarcodeFormat.PDF417  # Required. Barcode format
     message: str  # Required. Message or payload to be displayed as a barcode
     messageEncoding: str = (
@@ -185,6 +205,8 @@ class StoreCard(PassInformation):
 
 
 class Pass(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
+
     files: dict = PydanticField(default_factory=dict, exclude=True)
     """# Holds the files to include in the .pkpass"""
     hashes: dict = PydanticField(default_factory=dict, exclude=True)
@@ -223,6 +245,8 @@ class Pass(BaseModel):
     # barcode: Barcode | None = PydanticField(
     #     default=None, deprecated=True, description="Use barcodes instead"
     # )
+    
+        
     @computed_field
     @property
     def barcode(self) -> Barcode | None:

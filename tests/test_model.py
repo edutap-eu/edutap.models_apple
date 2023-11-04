@@ -179,7 +179,21 @@ def test_pdf_417_pass():
     assert thawedJson["barcode"]["format"] == BarcodeFormat.PDF417.value
     assert thawedJson["barcodes"][0]["format"] == BarcodeFormat.PDF417.value
 
+def test_pdf_417_pass_dump_enums_to_string():
+    """
+    tests that enums are correctly dumped as strings
+    see https://stackoverflow.com/questions/65209934/pydantic-enum-field-does-not-get-converted-to-string
+    """
+    file = open(jsons / 'test.json', 'r')
+    thawedJson = json.load(file)
+    
+    pass_ = models.Pass.model_validate(thawedJson)
 
+    pd = pass_.pass_dict
+    assert pd["barcodes"][0]["format"].__class__ == str
+        
+    
+    
 def test_files():
     passfile = create_shell_pass()
     passfile.addFile("icon.png", open(resources / "white_square.png", "rb"))  # test with file handle
