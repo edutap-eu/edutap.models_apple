@@ -39,7 +39,10 @@ class PassTemplateBase(BaseModel):
 
     def create_pass_object(
         self,
-        pass_patches: list[dict[str, Any]],
+        *,
+        passtype_identifier: str|None=None,
+        team_identifier: str|None=None,
+        pass_patches: list[dict[str, Any]]=[],
         passinfo_patches: list[dict[str, Any]] = [],
     ) -> Pass:
         """
@@ -52,8 +55,19 @@ class PassTemplateBase(BaseModel):
 
         the both patches are defined separately because the passInformation is stored depending on the pass_type
         e.g. self.pass_json["storeCard"] in case of a storeCard pass or self.pass_json["coupon"] in case of a coupon pass
+        
+        TODO: convenience params for passtype and teamidentifier
         """
-
+        if passtype_identifier is not None:
+            pass_patches = pass_patches + [
+                {"path": "/passTypeIdentifier", "op": "replace", "value": passtype_identifier}
+                ]
+            
+        if team_identifier is not None:
+            pass_patches = pass_patches + [
+                {"path": "/teamIdentifier", "op": "replace", "value": team_identifier}
+                ]
+            
         pass_patches = jsonpatch.JsonPatch(pass_patches)
         passinfo_patches = jsonpatch.JsonPatch(passinfo_patches)
 

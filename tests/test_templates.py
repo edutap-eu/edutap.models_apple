@@ -39,28 +39,29 @@ def created_pass_object(imported_template: PassTemplate):
     
 
     pass_ = imported_template.create_pass_object(
+        passtype_identifier=common.passtype_identifier,
+        team_identifier=common.team_identifier,
         # paths in the first param are relative to the root of the pass.json
-        [
+        pass_patches=[
             {
                 "path": "/barcodes/0/message",
                 "op": "replace",
                 "value": "new barcode message",
             },
-            # we have to replace the passTypeIdentifier and teamIdentifier
-            # so that the pass can be signed with our certificates
-            {
-                "path": "/passTypeIdentifier",
-                "op": "replace",
-                "value": common.passtype_identifier,
-            },
-            {
-                "path": "/teamIdentifier",
-                "op": "replace",
-                "value": common.team_identifier,
-            }
+            # alternatively we could change the passTypeIdentifier and teamIdentifier via jsonpatch:
+            # {
+            #     "path": "/passTypeIdentifier",
+            #     "op": "replace",
+            #     "value": common.passtype_identifier,
+            # },
+            # {
+            #     "path": "/teamIdentifier",
+            #     "op": "replace",
+            #     "value": common.team_identifier,
+            # }
         ],
         # the path below is relative to the "storeCard" object in the pass.json
-        [
+        passinfo_patches=[
             {
                 "path": "/primaryFields/0/changeMessage",
                 "op": "replace",
