@@ -29,8 +29,8 @@ class PassTemplateBase(BaseModel):
     id: pydantic.types.UUID4 = Field(
         default_factory=uuid.uuid4
     )  # unique over whole table
-    template_id: str  # uniqe name for lookup
-    backoffice_id: str  # unique id for backoffice
+    template_identifier: str  # uniqe name for lookup
+    backoffice_identifier: str  # unique id for backoffice
     title: str = ""
     description: str = ""
     creator: str = ""
@@ -146,14 +146,14 @@ class PassTemplateBase(BaseModel):
 
     @classmethod
     def from_passfile(
-        cls, passfile: bytes | io.IOBase, template_id: str, backoffice_id: str
+        cls, passfile: bytes | io.IOBase, template_identifier: str, backoffice_identifier: str
     ):
         """
         constructor method to create a template from a passfile.
         sutomatically sets pass_type, pass_json and attachments
         """
         template = cls(
-            template_id=template_id, backoffice_id=backoffice_id, pass_type="generic"
+            template_identifier=template_identifier, backoffice_identifier=backoffice_identifier, pass_type="generic"
         )
         template.import_passfile(passfile)
 

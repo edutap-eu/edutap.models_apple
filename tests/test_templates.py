@@ -13,7 +13,7 @@ def test_pass_template_import():
 
     passfilename = passes / "Coupon.pkpass"
     with open(passfilename, "rb") as f:
-        template = PassTemplate(template_id="test", backoffice_id="test")
+        template = PassTemplate(template_identifier="test", backoffice_identifier="test")
         template.import_passfile(f)
 
 
@@ -23,8 +23,8 @@ def imported_template():
 
     passfilename = passes / "StoreCard.pkpass"
     with open(passfilename, "rb") as f:
-        template = PassTemplate(template_id="test", backoffice_id="test")
-        pt = PassTemplate.from_passfile(f, template_id="test", backoffice_id="test")
+        template = PassTemplate(template_identifier="test", backoffice_identifier="test")
+        pt = PassTemplate.from_passfile(f, template_identifier="test", backoffice_identifier="test")
         return pt
 
 
