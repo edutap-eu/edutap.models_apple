@@ -33,7 +33,7 @@ def create_shell_pass(barcodeFormat=BarcodeFormat.CODE128, passTypeIdentifier="P
         organizationName="Org Name",
         passTypeIdentifier=passTypeIdentifier,
         teamIdentifier=teamIdentifier,
-        serialNumber="1234567",
+        # serialNumber="1234567",
         description="A Sample Pass"
     )
     passfile.barcode = stdBarcode

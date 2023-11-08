@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 import pydantic
 import jsonpatch
 
+
 from edutap.models_apple.models import Pass
 
 
@@ -40,6 +41,7 @@ class PassTemplateBase(BaseModel):
     def create_pass_object(
         self,
         *,
+        serial_number: str|None=None,
         passtype_identifier: str|None=None,
         team_identifier: str|None=None,
         pass_patches: list[dict[str, Any]]=[],
@@ -58,6 +60,12 @@ class PassTemplateBase(BaseModel):
         
         TODO: convenience params for passtype and teamidentifier
         """
+        
+        if serial_number is not None:
+            pass_patches = pass_patches + [
+                {"path": "/serialNumber", "op": "replace", "value": serial_number}
+                ]
+
         if passtype_identifier is not None:
             pass_patches = pass_patches + [
                 {"path": "/passTypeIdentifier", "op": "replace", "value": passtype_identifier}
@@ -130,7 +138,11 @@ class PassTemplateBase(BaseModel):
 
         passobject = Pass.model_validate_json(passjson)
         self.pass_type = passobject.passType
+
         self.pass_json = passobject.model_dump(exclude_none=True)
+        # the template needs no serial number, it will be set during pass creation
+        if "serialNumber" in self.pass_json:
+            del self.pass_json["serialNumber"]
 
     @classmethod
     def from_passfile(

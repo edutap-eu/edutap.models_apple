@@ -6,6 +6,7 @@ import io
 import json
 from numbers import Number
 import typing
+import uuid
 import zipfile
 
 from pydantic import BaseModel, ConfigDict, Field as PydanticField, computed_field, field_serializer, model_serializer, model_validator
@@ -13,6 +14,7 @@ from pydantic.fields import FieldInfo
 
 from M2Crypto import SMIME, X509
 from M2Crypto.X509 import X509_Stack
+import shortuuid
 
 class StrEnum(str, Enum):
     def __repr__(self) -> str:
@@ -203,6 +205,11 @@ class StoreCard(PassInformation):
     pass
 
 
+def create_serial_number():
+    uid = uuid.uuid4()
+    res = shortuuid.encode(uid)
+    
+    return res
 
 class Pass(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
@@ -226,7 +233,7 @@ class Pass(BaseModel):
     """
     Required. Display name of the organization that originated and
     signed the pass."""
-    serialNumber: str
+    serialNumber: str = PydanticField(default_factory=create_serial_number)
     """Required. Serial number that uniquely identifies the pass."""
     description: str
     """Required. Brief description of the pass, used by the iOS accessibility technologies."""
@@ -386,7 +393,6 @@ class Pass(BaseModel):
     def create_pass_object(self, passtype: str):
         passcls = pass_model_registry[passtype]
         setattr(self, passtype, passcls())
-
 
     def _get_smime(self, certificate, key, wwdr_certificate, password):
         """
